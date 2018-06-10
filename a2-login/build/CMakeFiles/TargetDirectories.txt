@@ -1,0 +1,5 @@
+/home/luka/Downloads/a2-login/build/CMakeFiles/rebuild_cache.dir
+/home/luka/Downloads/a2-login/build/CMakeFiles/edit_cache.dir
+/home/luka/Downloads/a2-login/build/CMakeFiles/bench.dir
+/home/luka/Downloads/a2-login/build/CMakeFiles/dictionary.dir
+/home/luka/Downloads/a2-login/build/CMakeFiles/tests.dir
