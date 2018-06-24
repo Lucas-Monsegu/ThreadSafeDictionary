@@ -1,7 +1,10 @@
 #include "trie.hpp"
+#include <chrono>
 
 void search_rec(Trie* t, char c, vector<unsigned> p_row,const string& query, result* res);
 unsigned triple_min(unsigned a, unsigned b, unsigned c);
+
+unsigned g_mini = 100000;
 
 void Trie::insert(const string& word)
 {
@@ -60,7 +63,7 @@ result_t Trie::mysearch(const string& query) const
   }
   return result_t(*res.word, res.dist);
 }
-void Trie::search_rec(Trie* t, char c, vector<unsigned> p_row,const string& query, result* res) const
+void Trie::search_rec(Trie* t, char c, vector<unsigned>& p_row,const string& query, result* res) const
 {
   vector<unsigned> row(p_row.size());
   row[0] = p_row[0] + 1;
@@ -74,10 +77,22 @@ void Trie::search_rec(Trie* t, char c, vector<unsigned> p_row,const string& quer
     replace_cost = query[i-1] == c ? p_row[i-1] : p_row[i-1] + 1;
     row[i] = triple_min(insert_cost, replace_cost, delete_cost);
   }
-  unsigned cur_dist = row[row.size() -1];
+  //get min row
+  unsigned min = 10000;
+  for(unsigned i = 1; i < p_row.size(); ++i)
+  {
+    if(row[i] < min)
+      min = row[i];
+  }
+  unsigned cur_dist = row[row.size() - 1];
+  if(t->word != "" && g_mini > cur_dist)
+    g_mini = cur_dist;
   if(cur_dist < res->dist && t->word != "")
+  {
     res->change(cur_dist, &t->word);
-
+  }
+  if(min >= g_mini)
+    return;
   if (!t->children.empty())
   {
     for (auto it = t->children.begin(); it != t->children.end(); ++it)
@@ -96,8 +111,9 @@ void Trie::erase(const string& w)
   }
   if (current->word != w)
     return;
-  current->word == "";
+  current->word = "";
 }
+inline
 unsigned triple_min(unsigned a, unsigned b, unsigned c)
 {
   if(b < a)

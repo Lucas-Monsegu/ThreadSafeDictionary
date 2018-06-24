@@ -22,7 +22,7 @@ class Trie
     string word;
   private:
     const Trie* basic_search(const string& query) const;
-    void search_rec(Trie* t, char c, vector<unsigned> p_row,const string& query, result* res) const;
+    void search_rec(Trie* t, char c, vector<unsigned>& p_row,const string& query, result* res) const;
 
   public:
 
