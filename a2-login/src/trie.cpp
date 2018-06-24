@@ -87,13 +87,14 @@ void Trie::search_rec(Trie* t, char c, vector<unsigned>& p_row,const string& que
       min = row[i];
   }
   unsigned cur_dist = row[row.size() - 1];
+  bool changed = false;
   if(t->word != "" && g_mini > cur_dist)
-    g_mini = cur_dist;
-  if(cur_dist < res->dist && t->word != "")
   {
+    g_mini = cur_dist;
+    changed = true;
     res->change(cur_dist, &t->word);
-  }
-  if(min > g_mini)
+    }
+  if(min >= g_mini && !changed)
     return;
   if (!t->children.empty())
   {

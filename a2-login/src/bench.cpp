@@ -5,7 +5,7 @@
 
 #include <benchmark/benchmark.h>
 
-constexpr int NQUERIES = 10000;
+constexpr int NQUERIES = 1000;
 
 class BMScenario : public ::benchmark::Fixture
 {
