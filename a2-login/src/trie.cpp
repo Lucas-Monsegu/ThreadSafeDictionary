@@ -77,8 +77,6 @@ result_t Trie::mysearch(const string& query) const {
         cur.change(100000, nullptr);
         search_rec(children.at(iterators[it]), iterators[it], row, query, &cur);
         ++i;
-        if (cur.dist <= res.dist)
-            res.change(cur.dist, cur.word);
     });
     //std::cout << "searching " << query << " found: " << *res.word << " " << res.dist<<std::endl;
     unsigned min = 100;
@@ -89,6 +87,9 @@ result_t Trie::mysearch(const string& query) const {
             res = cur;
         }
     }
+    delete[] iterators;
+    //delete[] results;
+
     return result_t(*res.word, res.dist);
 }
 void Trie::search_rec(Trie* t, char c, vector<unsigned>& p_row,const string& query, result* res) const
