@@ -6,9 +6,10 @@ set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/modules")
 find_package(Threads REQUIRED)
 find_package(benchmark REQUIRED)
 find_package(GTest)
+find_package(TBB)
 
 set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_FLAGS "-W -Wall -O3")
+set(CMAKE_CXX_FLAGS "-W -Wall -O3 -ltbb")
 set(CMAKE_CXX_FLAGS_DEBUG "-fsanitize=thread")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
 
@@ -31,10 +32,11 @@ add_library(dictionary
   src/my_async_dictionary.cpp
   )
 
+
 set_source_files_properties(src/tools.cpp PROPERTIES COMPILE_DEFINITIONS WORD_LIST_FILE="${CMAKE_SOURCE_DIR}/words_alpha.txt")
 add_executable(tests src/tests.cpp)
 target_link_libraries(tests dictionary GTest::GTest GTest::Main Threads::Threads)
 
-
 add_executable(bench src/bench.cpp)
 target_link_libraries(bench dictionary benchmark::benchmark)
+

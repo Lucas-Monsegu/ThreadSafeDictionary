@@ -1,10 +1,13 @@
 #include "trie.hpp"
+#include <atomic>
 #include <chrono>
+#include <tbb/tbb.h>
+#include <mutex>
 
 void search_rec(Trie* t, char c, vector<unsigned> p_row,const string& query, result* res);
 unsigned triple_min(unsigned a, unsigned b, unsigned c);
 
-unsigned g_mini = 100000;
+std::atomic<unsigned> g_mini = 100000;
 
 void Trie::insert(const string& word)
 {
@@ -34,36 +37,59 @@ const Trie* Trie::basic_search(const string& query) const
   return current->word == query ? current : nullptr;
 
 }
-result_t Trie::mysearch(const string& query) const
-{
-  g_mini = 10000;
-  //Check if the word exist performence increase dependently on the kind of query
-  /*
-  const Trie* basic = basic_search(query);
-  if(basic != nullptr)
-    return result_t( basic->word, 0);
-  */
-  vector<unsigned> row(query.size() + 1);
-  //Initialize the array from 0 to the size of query
-  for(unsigned i = 0; i <= query.size(); ++i)
-    row[i] = i;
-  //Launch the recursive function of each child of the root
-  result cur;
-  cur.change(1000000, nullptr);
-  result res;
-  res.change(1000000, nullptr);
-  unsigned i = 0;
-  for(auto it = children.begin(); it != children.end(); ++it)
-  {
-    cur.change(100000, nullptr);
-    auto child = *it;
-    search_rec(child.second, child.first, row, query, &cur);
-    ++i;
-    if(cur.dist <= res.dist)
-      res.change(cur.dist, cur.word);
-  }
-  //std::cout << "searching " << query << " found: " << *res.word << " " << res.dist<<std::endl;
-  return result_t(*res.word, res.dist);
+result_t Trie::mysearch(const string& query) const {
+    g_mini = 10000;
+    //Check if the word exist performence increase dependently on the kind of query
+    /*
+    const Trie* basic = basic_search(query);
+    if(basic != nullptr)
+      return result_t( basic->word, 0);
+    */
+    vector<unsigned> row(query.size() + 1);
+    //Initialize the array from 0 to the size of query
+    for (unsigned i = 0; i <= query.size(); ++i)
+        row[i] = i;
+    //Launch the recursive function of each child of the root
+    /*result cur;
+    cur.change(1000000, nullptr);*/
+    result res;
+    res.change(1000000, nullptr);
+    unsigned i = 0;
+    char *iterators = new char[28];
+    result* results = new result[28];
+    for (int it = 0; it < 28; ++it) {
+        iterators[it] = '%';
+        result cur;
+        cur.change(1000000, nullptr);
+        results[it] = cur;
+    }
+    unsigned count = 0;
+    for (auto it = children.begin(); it != children.end(); ++it)
+    {
+        iterators[count] = it->first;
+        count++;
+    }
+    auto max_th = 27;
+    tbb::parallel_for(0, max_th, [&](size_t it) {//for(auto it = children.begin(); it != children.end(); ++it)
+        if (iterators[it] == '%')
+            return;
+        auto cur = results[it];
+        cur.change(100000, nullptr);
+        search_rec(children.at(iterators[it]), iterators[it], row, query, &cur);
+        ++i;
+        if (cur.dist <= res.dist)
+            res.change(cur.dist, cur.word);
+    });
+    //std::cout << "searching " << query << " found: " << *res.word << " " << res.dist<<std::endl;
+    unsigned min = 100;
+    for (int it = 0; it < 28; ++it) {
+        auto cur = results[it];
+        if (cur.dist < min) {
+            min = cur.dist;
+            res = cur;
+        }
+    }
+    return result_t(*res.word, res.dist);
 }
 void Trie::search_rec(Trie* t, char c, vector<unsigned>& p_row,const string& query, result* res) const
 {
@@ -88,13 +114,13 @@ void Trie::search_rec(Trie* t, char c, vector<unsigned>& p_row,const string& que
   }
   unsigned cur_dist = row[row.size() - 1];
   bool changed = false;
-  if(t->word != "" && g_mini > cur_dist)
+  if(t->word != "" && g_mini.load() > cur_dist)
   {
-    g_mini = cur_dist;
+    g_mini.exchange(cur_dist);
     changed = true;
     res->change(cur_dist, &t->word);
     }
-  if(min >= g_mini && !changed)
+  if(min >= g_mini.load() && !changed)
     return;
   if (!t->children.empty())
   {
