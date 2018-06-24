@@ -8,7 +8,7 @@ find_package(benchmark REQUIRED)
 find_package(GTest)
 
 set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_FLAGS "-W -Wall")
+set(CMAKE_CXX_FLAGS "-W -Wall -O3")
 set(CMAKE_CXX_FLAGS_DEBUG "-fsanitize=thread")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
 
@@ -28,6 +28,7 @@ add_library(dictionary
   src/tools.cpp
   src/my_dictionary.cpp
   src/trie.cpp
+  src/my_async_dictionary.cpp
   )
 
 set_source_files_properties(src/tools.cpp PROPERTIES COMPILE_DEFINITIONS WORD_LIST_FILE="${CMAKE_SOURCE_DIR}/words_alpha.txt")
