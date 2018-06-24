@@ -36,6 +36,7 @@ const Trie* Trie::basic_search(const string& query) const
 }
 result_t Trie::mysearch(const string& query) const
 {
+  g_mini = 10000;
   //Check if the word exist performence increase dependently on the kind of query
   /*
   const Trie* basic = basic_search(query);
@@ -44,7 +45,7 @@ result_t Trie::mysearch(const string& query) const
   */
   vector<unsigned> row(query.size() + 1);
   //Initialize the array from 0 to the size of query
-  for(unsigned i = 0; i < query.size(); ++i)
+  for(unsigned i = 0; i <= query.size(); ++i)
     row[i] = i;
   //Launch the recursive function of each child of the root
   result cur;
@@ -61,6 +62,7 @@ result_t Trie::mysearch(const string& query) const
     if(cur.dist <= res.dist)
       res.change(cur.dist, cur.word);
   }
+  //std::cout << "searching " << query << " found: " << *res.word << " " << res.dist<<std::endl;
   return result_t(*res.word, res.dist);
 }
 void Trie::search_rec(Trie* t, char c, vector<unsigned>& p_row,const string& query, result* res) const
@@ -91,7 +93,7 @@ void Trie::search_rec(Trie* t, char c, vector<unsigned>& p_row,const string& que
   {
     res->change(cur_dist, &t->word);
   }
-  if(min >= g_mini)
+  if(min > g_mini)
     return;
   if (!t->children.empty())
   {

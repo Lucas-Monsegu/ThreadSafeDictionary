@@ -4,6 +4,7 @@
 #include "tools.hpp"
 #include "naive_dictionary.hpp"
 #include "naive_async_dictionary.hpp"
+#include "my_dictionary.hpp"
 
 using namespace std::string_literals;
 
@@ -15,6 +16,7 @@ using namespace std::string_literals;
 // A basic add/remove/search test
 TEST(Dictionary, Basic)
 {
+  
   naive_dictionary dic = { "massue", "lamasse", "massive"};
 
   ASSERT_EQ(dic.search("massive"), std::make_pair("massive"s, 0));

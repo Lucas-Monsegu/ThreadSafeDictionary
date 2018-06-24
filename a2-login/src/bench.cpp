@@ -1,11 +1,11 @@
 #include <functional>
 #include "tools.hpp"
 #include "my_dictionary.hpp"
-#include "naive_async_dictionary.hpp"
+#include "my_async_dictionary.hpp"
 
 #include <benchmark/benchmark.h>
 
-constexpr int NQUERIES = 10;
+constexpr int NQUERIES = 10000;
 
 class BMScenario : public ::benchmark::Fixture
 {
@@ -40,7 +40,7 @@ BENCHMARK_DEFINE_F(BMScenario, Naive_NoAsync)(benchmark::State& st)
 
 BENCHMARK_DEFINE_F(BMScenario, Naive_Async)(benchmark::State& st)
 {
-  naive_async_dictionary dic;
+  my_async_dictionary dic;
   m_scenario->prepare(dic);
 
   for (auto _ : st)
