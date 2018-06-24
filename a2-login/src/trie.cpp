@@ -1,15 +1,5 @@
 #include "trie.hpp"
 
-struct result
-{
-  unsigned dist;
-  string* word;
-  void change(unsigned d, string *w)
-  {
-    dist = d;
-    word = w;
-  }
-};
 void search_rec(Trie* t, char c, vector<unsigned> p_row,const string& query, result* res);
 unsigned triple_min(unsigned a, unsigned b, unsigned c);
 
@@ -26,26 +16,51 @@ void Trie::insert(const string& word)
   }
   current->word = word;
 }
-result_t mysearch(const string& query,const Trie& root)
+const Trie* Trie::basic_search(const string& query) const
 {
+  const Trie* current = this;
+  for (unsigned i = 0; i < query.size(); ++i)
+  {
+    auto k = current->children.find(query[i]);
+    if (k == current->children.end())
+    {
+      return nullptr;
+    }
+    current = k->second;
+  }
+  return current->word == query ? current : nullptr;
+
+}
+result_t Trie::mysearch(const string& query) const
+{
+  //Check if the word exist performence increase dependently on the kind of query
+  /*
+  const Trie* basic = basic_search(query);
+  if(basic != nullptr)
+    return result_t( basic->word, 0);
+  */
   vector<unsigned> row(query.size() + 1);
   //Initialize the array from 0 to the size of query
   for(unsigned i = 0; i < query.size(); ++i)
     row[i] = i;
   //Launch the recursive function of each child of the root
-  result res;
   result cur;
-  res.change(100000, nullptr);
-  for(auto child: root.children)
+  cur.change(1000000, nullptr);
+  result res;
+  res.change(1000000, nullptr);
+  unsigned i = 0;
+  for(auto it = children.begin(); it != children.end(); ++it)
   {
     cur.change(100000, nullptr);
+    auto child = *it;
     search_rec(child.second, child.first, row, query, &cur);
-    if(cur.dist < res.dist)
+    ++i;
+    if(cur.dist <= res.dist)
       res.change(cur.dist, cur.word);
   }
   return result_t(*res.word, res.dist);
 }
-void search_rec(Trie* t, char c, vector<unsigned> p_row,const string& query, result* res)
+void Trie::search_rec(Trie* t, char c, vector<unsigned> p_row,const string& query, result* res) const
 {
   vector<unsigned> row(p_row.size());
   row[0] = p_row[0] + 1;

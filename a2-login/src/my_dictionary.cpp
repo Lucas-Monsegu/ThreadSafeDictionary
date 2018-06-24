@@ -14,7 +14,7 @@ void my_dictionary::insert(const std::string& w)
 }
 result_t my_dictionary::search(const std::string& query) const
 {
-  return mysearch(query, root);
+  return root.mysearch(query);
 }
 void my_dictionary::erase(const std::string& w)
 {
